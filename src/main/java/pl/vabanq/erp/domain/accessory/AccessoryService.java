@@ -101,7 +101,7 @@ public class AccessoryService {
         String updatedName = Validator.isNameValid(name) ? name : oldPackagingAccessory.name();
         String updatedPackagingSize = Validator.isPackagingSizeValid(packagingSize)
                 ? packagingSize : oldPackagingAccessory.packagingSize();
-        String updatedDimensions = (Validator.isDimensionsValid(dimensions))
+        String updatedDimensions = Validator.isDimensionsValid(dimensions)
                 ? dimensions : oldPackagingAccessory.dimensions();
         BigDecimal updatedNetPricePerQuantity = Validator.isPriceValid(netPricePerQuantity)
                 ? new BigDecimal(netPricePerQuantity) : oldPackagingAccessory.netPricePerQuantity();
@@ -222,19 +222,25 @@ public class AccessoryService {
         }
 
         static boolean isTemperatureValid(String printTemperature) {
+            if (printTemperature == null) {
+                return false;
+            }
             try {
                 double temp = Double.parseDouble(printTemperature);
                 return temp > 0;
-            } catch (NumberFormatException | NullPointerException e) {
+            } catch (NumberFormatException e) {
                 return false;
             }
         }
 
         static boolean isPriceValid(String pricePerKg) {
+            if (pricePerKg == null) {
+                return false;
+            }
             try {
                 BigDecimal price = new BigDecimal(pricePerKg);
                 return price.compareTo(BigDecimal.ZERO) > 0 && price.scale() <= 2;
-            } catch (NumberFormatException | NullPointerException e) {
+            } catch (NumberFormatException e) {
                 return false;
             }
         }
