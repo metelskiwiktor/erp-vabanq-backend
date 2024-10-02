@@ -2,10 +2,14 @@ package pl.vabanq.erp.domain.change;
 
 
 import pl.vabanq.erp.domain.Identifiable;
+import pl.vabanq.erp.domain.error.DomainException;
+import pl.vabanq.erp.domain.error.ErrorCode;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.RecordComponent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,10 +21,11 @@ public class ChangeTrackingService {
     public void logCreate(Identifiable identifiable) {
         ChangeLog log = new ChangeLog(
                 idGenerator.getAndIncrement(),
+                identifiable.name(),
                 identifiable.id(),
                 "CREATE",
                 LocalDateTime.now(),
-                null // Brak szczegółów dla operacji CREATE
+                Collections.emptyList() // Brak szczegółów dla operacji CREATE
         );
         changeLogs.add(log);
     }
@@ -28,10 +33,11 @@ public class ChangeTrackingService {
     public void logDelete(Identifiable identifiable) {
         ChangeLog log = new ChangeLog(
                 idGenerator.getAndIncrement(),
+                identifiable.name(),
                 identifiable.id(),
                 "DELETE",
                 LocalDateTime.now(),
-                null // Brak szczegółów dla operacji DELETE
+                Collections.emptyList() // Brak szczegółów dla operacji DELETE
         );
         changeLogs.add(log);
     }
@@ -41,6 +47,7 @@ public class ChangeTrackingService {
         if (!details.isEmpty()) {
             ChangeLog log = new ChangeLog(
                     idGenerator.getAndIncrement(),
+                    oldObj.name(),
                     oldObj.id(),
                     "UPDATE",
                     LocalDateTime.now(),
@@ -69,7 +76,7 @@ public class ChangeTrackingService {
                     continue;
                 }
 
-                if (oldValue == null || newValue == null || !oldValue.equals(newValue)) {
+                if (oldValue == null || !oldValue.equals(newValue)) {
                     changes.add(new ChangeDetail(
                             fieldName,
                             oldValue != null ? oldValue.toString() : null,
@@ -77,14 +84,11 @@ public class ChangeTrackingService {
                     ));
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new DomainException(ErrorCode.INTERNAL_ERROR);
         }
 
-        return changes;
+        return Collections.unmodifiableList(changes);
     }
 
-    public List<ChangeLog> getAllChangeLogs() {
-        return List.copyOf(changeLogs);
-    }
 }
