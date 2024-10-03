@@ -1,7 +1,7 @@
 package pl.vabanq.erp.infrastructure.database.accessory.entity;
 
 import jakarta.persistence.*;
-import pl.vabanq.erp.domain.accessory.model.FilamentAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.FilamentAccessory;
 
 @Entity
 public class FilamentAccessoryJPA {

@@ -1,10 +1,11 @@
 package pl.vabanq.erp.infrastructure.database.accessory;
 
 import org.springframework.stereotype.Repository;
-import pl.vabanq.erp.domain.accessory.AccessoryRepository;
-import pl.vabanq.erp.domain.accessory.model.FastenersAccessory;
-import pl.vabanq.erp.domain.accessory.model.FilamentAccessory;
-import pl.vabanq.erp.domain.accessory.model.PackagingAccessory;
+import pl.vabanq.erp.domain.Identifiable;
+import pl.vabanq.erp.domain.products.accessory.AccessoryRepository;
+import pl.vabanq.erp.domain.products.accessory.model.FastenersAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.FilamentAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.PackagingAccessory;
 import pl.vabanq.erp.domain.error.DomainException;
 import pl.vabanq.erp.domain.error.ErrorCode;
 import pl.vabanq.erp.infrastructure.database.accessory.entity.FastenersAccessoryJPA;
@@ -15,6 +16,7 @@ import pl.vabanq.erp.infrastructure.database.accessory.spring.FastenersRepositor
 import pl.vabanq.erp.infrastructure.database.accessory.spring.PackagingRepositorySpringJPA;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class AccessoryRepositoryJPA implements AccessoryRepository {
@@ -93,6 +95,30 @@ public class AccessoryRepositoryJPA implements AccessoryRepository {
         return fastenersRepository.findByAccessory_Id(id)
                 .orElseThrow(() -> new DomainException(ErrorCode.NOT_FOUND, id))
                 .getAccessory();
+    }
+
+    @Override
+    public Identifiable getAccessory(String id) {
+        Optional<FilamentAccessoryJPA> filament = accessoryRepository.findByAccessory_Id(id);
+        if (filament.isPresent()) {
+            return filament.get().getAccessory();
+        }
+        Optional<PackagingAccessoryJPA> packaging = packagingRepository.findByAccessory_Id(id);
+        if (packaging.isPresent()) {
+            return packaging.get().getAccessory();
+        }
+        Optional<FastenersAccessoryJPA> fastener = fastenersRepository.findByAccessory_Id(id);
+        if (fastener.isPresent()) {
+            return fastener.get().getAccessory();
+        }
+        throw new DomainException(ErrorCode.NOT_FOUND, id);
+    }
+
+    @Override
+    public List<FastenersAccessory> getAllFasteners() {
+        return fastenersRepository.findAll().stream()
+                .map(FastenersAccessoryJPA::getAccessory)
+                .toList();
     }
 
     public List<FastenersAccessory> getAllFastenersAccessories() {

@@ -1,8 +1,9 @@
-package pl.vabanq.erp.domain.accessory;
+package pl.vabanq.erp.domain.products.accessory;
 
-import pl.vabanq.erp.domain.accessory.model.FastenersAccessory;
-import pl.vabanq.erp.domain.accessory.model.FilamentAccessory;
-import pl.vabanq.erp.domain.accessory.model.PackagingAccessory;
+import pl.vabanq.erp.domain.Identifiable;
+import pl.vabanq.erp.domain.products.accessory.model.FastenersAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.FilamentAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.PackagingAccessory;
 
 import java.util.List;
 
@@ -22,4 +23,8 @@ public interface AccessoryRepository {
     PackagingAccessory getPackagingAccessory(String id);
 
     FastenersAccessory getFastenersAccessory(String id);
+
+    Identifiable getAccessory(String id);
+
+    List<FastenersAccessory> getAllFasteners();
 }

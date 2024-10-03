@@ -1,4 +1,4 @@
-package pl.vabanq.erp.domain.accessory.model;
+package pl.vabanq.erp.domain.products.accessory.model;
 
 
 import pl.vabanq.erp.domain.Identifiable;
@@ -14,6 +14,7 @@ public record FilamentAccessory(
         double deskTemperature,
         BigDecimal pricePerKg,
         String color,
-        String description
+        String description,
+        double quantity
 ) implements Identifiable {
 }

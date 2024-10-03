@@ -8,9 +8,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import pl.vabanq.erp.domain.accessory.model.FastenersAccessory;
-import pl.vabanq.erp.domain.accessory.model.FilamentAccessory;
-import pl.vabanq.erp.domain.accessory.model.PackagingAccessory;
+import pl.vabanq.erp.domain.products.accessory.AccessoryService;
+import pl.vabanq.erp.domain.products.accessory.model.FastenersAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.FilamentAccessory;
+import pl.vabanq.erp.domain.products.accessory.model.PackagingAccessory;
 import pl.vabanq.erp.domain.change.ChangeTrackingService;
 import pl.vabanq.erp.domain.error.DomainException;
 import pl.vabanq.erp.domain.error.ErrorCode;
@@ -49,10 +50,11 @@ public class AccessoryServiceTest {
         String pricePerKg = "19.99";
         String color = "#FFFFFF";
         String description = "High-quality PLA filament";
+        String quantity = "10.0";
 
         // when
         accessoryService.saveFilament(name, producer, filamentType, printTemperature,
-                deskTemperature, pricePerKg, color, description);
+                deskTemperature, pricePerKg, color, description, quantity);
 
         // then
         List<FilamentAccessory> filaments = accessoryService.getAllFilaments();
@@ -67,6 +69,7 @@ public class AccessoryServiceTest {
         assertEquals(new BigDecimal(pricePerKg), savedFilament.pricePerKg());
         assertEquals(color, savedFilament.color());
         assertEquals(description, savedFilament.description());
+        assertEquals(Double.parseDouble(quantity), savedFilament.quantity());
     }
 
     @Test
@@ -81,6 +84,7 @@ public class AccessoryServiceTest {
         String pricePerKg1 = "19.99";
         String color1 = "#FF0000";
         String description1 = "Red PLA filament";
+        String quantity1 = "15.0";
 
         String name2 = "ABS 1kg";
         String producer2 = "DEF";
@@ -90,12 +94,13 @@ public class AccessoryServiceTest {
         String pricePerKg2 = "29.99";
         String color2 = "#00FF00";
         String description2 = "Green ABS filament";
+        String quantity2 = "20.0";
 
         // when
         accessoryService.saveFilament(name1, producer1, filamentType1, printTemperature1,
-                deskTemperature1, pricePerKg1, color1, description1);
+                deskTemperature1, pricePerKg1, color1, description1, quantity1);
         accessoryService.saveFilament(name2, producer2, filamentType2, printTemperature2,
-                deskTemperature2, pricePerKg2, color2, description2);
+                deskTemperature2, pricePerKg2, color2, description2, quantity2);
 
         // then
         List<FilamentAccessory> filaments = accessoryService.getAllFilaments();
@@ -112,6 +117,7 @@ public class AccessoryServiceTest {
         assertEquals(new BigDecimal(pricePerKg1), filament1.pricePerKg());
         assertEquals(color1, filament1.color());
         assertEquals(description1, filament1.description());
+        assertEquals(Double.parseDouble(quantity1), filament1.quantity());
 
         assertEquals(name2, filament2.name());
         assertEquals(producer2, filament2.producer());
@@ -121,6 +127,7 @@ public class AccessoryServiceTest {
         assertEquals(new BigDecimal(pricePerKg2), filament2.pricePerKg());
         assertEquals(color2, filament2.color());
         assertEquals(description2, filament2.description());
+        assertEquals(Double.parseDouble(quantity2), filament2.quantity());
     }
 
     @ParameterizedTest
@@ -129,14 +136,14 @@ public class AccessoryServiceTest {
     void shouldThrowDomainExceptionForInvalidFilamentData(String name, String producer, String filamentType,
                                                           String printTemperature, String deskTemperature,
                                                           String pricePerKg, String color, String description,
-                                                          String expectedField, String expectedValue) {
+                                                          String quantity, String expectedField, String expectedValue) {
         // given
         // invalid data passed from MethodSource
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
                 accessoryService.saveFilament(name, producer, filamentType, printTemperature,
-                        deskTemperature, pricePerKg, color, description)
+                        deskTemperature, pricePerKg, color, description, quantity)
         );
         assertTrue(exception.getMessage().contains(expectedField));
         assertTrue(exception.getMessage().contains(expectedValue));
@@ -154,6 +161,7 @@ public class AccessoryServiceTest {
             BigDecimal initialPricePerKg,
             String initialColor,
             String initialDescription,
+            double initialQuantity,
             String updatedName,
             String updatedProducer,
             String updatedFilamentType,
@@ -162,6 +170,7 @@ public class AccessoryServiceTest {
             String updatedPricePerKg,
             String updatedColor,
             String updatedDescription,
+            String updatedQuantity,
             String expectedName,
             String expectedProducer,
             String expectedFilamentType,
@@ -169,7 +178,8 @@ public class AccessoryServiceTest {
             double expectedDeskTemperature,
             BigDecimal expectedPricePerKg,
             String expectedColor,
-            String expectedDescription
+            String expectedDescription,
+            double expectedQuantity
     ) {
         // given
         accessoryService.saveFilament(
@@ -180,7 +190,8 @@ public class AccessoryServiceTest {
                 String.valueOf(initialDeskTemperature),
                 initialPricePerKg.toString(),
                 initialColor,
-                initialDescription
+                initialDescription,
+                String.valueOf(initialQuantity)
         );
         FilamentAccessory savedFilament = accessoryService.getAllFilaments().getFirst();
         assertEquals(1, accessoryService.getAllFilaments().size());
@@ -195,7 +206,8 @@ public class AccessoryServiceTest {
                 updatedDeskTemperature,
                 updatedPricePerKg,
                 updatedColor,
-                updatedDescription
+                updatedDescription,
+                updatedQuantity
         );
 
         // then
@@ -209,20 +221,21 @@ public class AccessoryServiceTest {
         assertEquals(expectedPricePerKg, updatedFilament.pricePerKg());
         assertEquals(expectedColor, updatedFilament.color());
         assertEquals(expectedDescription, updatedFilament.description());
+        assertEquals(expectedQuantity, updatedFilament.quantity());
     }
-
 
     @Test
     @DisplayName("Should save packaging accessory successfully for valid data")
     void shouldSavePackagingAccessorySuccessfully() {
         // given
         String name = "Box A";
-        String packagingSize = "S"; // zakładam, że rozmiar opakowania to pojedynczy znak
-        String dimensions = "10x20x30"; // długość x szerokość x wysokość
+        String packagingSize = "S";
+        String dimensions = "10x20x30";
         String netPricePerQuantity = "5.50";
+        String quantity = "50.0";
 
         // when
-        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity);
+        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
 
         // then
         List<PackagingAccessory> packagingAccessories = accessoryService.getAllPackagingAccessories();
@@ -231,12 +244,9 @@ public class AccessoryServiceTest {
 
         assertEquals(name, savedPackagingAccessory.name());
         assertEquals(packagingSize, savedPackagingAccessory.packagingSize());
-
-        // Sprawdzenie wymiarów
-        assertNotNull(savedPackagingAccessory.dimensions());
         assertEquals(dimensions, savedPackagingAccessory.dimensions());
-
         assertEquals(new BigDecimal(netPricePerQuantity), savedPackagingAccessory.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity), savedPackagingAccessory.quantity());
     }
 
     @Test
@@ -247,15 +257,17 @@ public class AccessoryServiceTest {
         String packagingSize1 = "S";
         String dimensions1 = "10x20x30";
         String netPricePerQuantity1 = "5.50";
+        String quantity1 = "50.0";
 
         String name2 = "Box B";
         String packagingSize2 = "M";
         String dimensions2 = "15x25x35";
         String netPricePerQuantity2 = "7.75";
+        String quantity2 = "30.0";
 
         // when
-        accessoryService.savePackagingAccessory(name1, packagingSize1, dimensions1, netPricePerQuantity1);
-        accessoryService.savePackagingAccessory(name2, packagingSize2, dimensions2, netPricePerQuantity2);
+        accessoryService.savePackagingAccessory(name1, packagingSize1, dimensions1, netPricePerQuantity1, quantity1);
+        accessoryService.savePackagingAccessory(name2, packagingSize2, dimensions2, netPricePerQuantity2, quantity2);
 
         // then
         List<PackagingAccessory> packagingAccessories = accessoryRepository.getAllPackagingAccessories();
@@ -264,19 +276,17 @@ public class AccessoryServiceTest {
         PackagingAccessory packaging1 = packagingAccessories.getFirst();
         PackagingAccessory packaging2 = packagingAccessories.get(1);
 
-        // Sprawdzenie pierwszego opakowania
         assertEquals(name1, packaging1.name());
         assertEquals(packagingSize1, packaging1.packagingSize());
-        assertNotNull(packaging1.dimensions());
         assertEquals(dimensions1, packaging1.dimensions());
         assertEquals(new BigDecimal(netPricePerQuantity1), packaging1.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity1), packaging1.quantity());
 
-        // Sprawdzenie drugiego opakowania
         assertEquals(name2, packaging2.name());
         assertEquals(packagingSize2, packaging2.packagingSize());
-        assertNotNull(packaging2.dimensions());
         assertEquals(dimensions2, packaging2.dimensions());
         assertEquals(new BigDecimal(netPricePerQuantity2), packaging2.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity2), packaging2.quantity());
     }
 
     @ParameterizedTest
@@ -284,13 +294,13 @@ public class AccessoryServiceTest {
     @DisplayName("Should throw DomainException for invalid packaging accessory data")
     void shouldThrowDomainExceptionForInvalidPackagingAccessoryData(String name, String packagingSize,
                                                                     String dimensions, String netPricePerQuantity,
-                                                                    String expectedField, String expectedValue) {
+                                                                    String quantity, String expectedField, String expectedValue) {
         // given
         // invalid data passed from MethodSource
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
-                accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity)
+                accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity)
         );
         assertTrue(exception.getMessage().contains(expectedField));
         assertTrue(exception.getMessage().contains(expectedValue));
@@ -302,9 +312,10 @@ public class AccessoryServiceTest {
         // given
         String name = "Screw Set";
         String netPricePerQuantity = "15.99";
+        String quantity = "100.0";
 
         // when
-        accessoryService.saveFastenersAccessory(name, netPricePerQuantity);
+        accessoryService.saveFastenersAccessory(name, netPricePerQuantity, quantity);
 
         // then
         List<FastenersAccessory> fastenersAccessories = accessoryRepository.getAllFastenersAccessories();
@@ -313,6 +324,7 @@ public class AccessoryServiceTest {
 
         assertEquals(name, savedFastenersAccessory.name());
         assertEquals(new BigDecimal(netPricePerQuantity), savedFastenersAccessory.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity), savedFastenersAccessory.quantity());
     }
 
     @Test
@@ -321,13 +333,15 @@ public class AccessoryServiceTest {
         // given
         String name1 = "Screw Set";
         String netPricePerQuantity1 = "15.99";
+        String quantity1 = "100.0";
 
         String name2 = "Bolt Set";
         String netPricePerQuantity2 = "25.50";
+        String quantity2 = "50.0";
 
         // when
-        accessoryService.saveFastenersAccessory(name1, netPricePerQuantity1);
-        accessoryService.saveFastenersAccessory(name2, netPricePerQuantity2);
+        accessoryService.saveFastenersAccessory(name1, netPricePerQuantity1, quantity1);
+        accessoryService.saveFastenersAccessory(name2, netPricePerQuantity2, quantity2);
 
         // then
         List<FastenersAccessory> fastenersAccessories = accessoryRepository.getAllFastenersAccessories();
@@ -336,26 +350,26 @@ public class AccessoryServiceTest {
         FastenersAccessory fastener1 = fastenersAccessories.getFirst();
         FastenersAccessory fastener2 = fastenersAccessories.get(1);
 
-        // Sprawdzenie pierwszego fastenera
         assertEquals(name1, fastener1.name());
         assertEquals(new BigDecimal(netPricePerQuantity1), fastener1.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity1), fastener1.quantity());
 
-        // Sprawdzenie drugiego fastenera
         assertEquals(name2, fastener2.name());
         assertEquals(new BigDecimal(netPricePerQuantity2), fastener2.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity2), fastener2.quantity());
     }
 
     @ParameterizedTest
     @MethodSource("invalidFastenersAccessoryDataProvider")
     @DisplayName("Should throw DomainException for invalid fasteners accessory data")
     void shouldThrowDomainExceptionForInvalidFastenersAccessoryData(String name, String netPricePerQuantity,
-                                                                    String expectedField, String expectedValue) {
+                                                                    String quantity, String expectedField, String expectedValue) {
         // given
         // invalid data passed from MethodSource
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
-                accessoryService.saveFastenersAccessory(name, netPricePerQuantity)
+                accessoryService.saveFastenersAccessory(name, netPricePerQuantity, quantity)
         );
         assertTrue(exception.getMessage().contains(expectedField));
         assertTrue(exception.getMessage().contains(expectedValue));
@@ -369,8 +383,9 @@ public class AccessoryServiceTest {
         String packagingSize = "S";
         String dimensions = "10x20x30";
         String netPricePerQuantity = "5.50";
+        String quantity = "50.0";
 
-        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity);
+        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
 
         List<PackagingAccessory> packagingAccessories = accessoryService.getAllPackagingAccessories();
         assertEquals(1, packagingAccessories.size());
@@ -381,13 +396,15 @@ public class AccessoryServiceTest {
         String updatedPackagingSize = "M";
         String updatedDimensions = "15x25x35";
         String updatedNetPricePerQuantity = "7.75";
+        String updatedQuantity = "60.0";
 
         accessoryService.updatePackagingAccessory(
                 savedPackagingAccessory.id(),
                 updatedName,
                 updatedPackagingSize,
                 updatedDimensions,
-                updatedNetPricePerQuantity
+                updatedNetPricePerQuantity,
+                updatedQuantity
         );
 
         // then
@@ -398,6 +415,7 @@ public class AccessoryServiceTest {
         assertEquals(updatedPackagingSize, updatedPackagingAccessory.packagingSize());
         assertEquals(updatedDimensions, updatedPackagingAccessory.dimensions());
         assertEquals(new BigDecimal(updatedNetPricePerQuantity), updatedPackagingAccessory.netPricePerQuantity());
+        assertEquals(Double.parseDouble(updatedQuantity), updatedPackagingAccessory.quantity());
     }
 
     @Test
@@ -408,8 +426,9 @@ public class AccessoryServiceTest {
         String packagingSize = "S";
         String dimensions = "10x20x30";
         String netPricePerQuantity = "5.50";
+        String quantity = "50.0";
 
-        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity);
+        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
 
         List<PackagingAccessory> packagingAccessories = accessoryService.getAllPackagingAccessories();
         assertEquals(1, packagingAccessories.size());
@@ -417,9 +436,7 @@ public class AccessoryServiceTest {
 
         // when
         String updatedName = "Box A Updated";
-        // Aktualizacja tylko dimensions
         String updatedDimensions = "15x25x35";
-        // Aktualizacja tylko netPricePerQuantity
         String updatedNetPricePerQuantity = "7.75";
 
         accessoryService.updatePackagingAccessory(
@@ -427,7 +444,8 @@ public class AccessoryServiceTest {
                 updatedName,
                 null,
                 updatedDimensions,
-                updatedNetPricePerQuantity
+                updatedNetPricePerQuantity,
+                null
         );
 
         // then
@@ -438,6 +456,7 @@ public class AccessoryServiceTest {
         assertEquals(packagingSize, updatedPackagingAccessory.packagingSize()); // Bez zmian
         assertEquals(updatedDimensions, updatedPackagingAccessory.dimensions());
         assertEquals(new BigDecimal(updatedNetPricePerQuantity), updatedPackagingAccessory.netPricePerQuantity());
+        assertEquals(Double.parseDouble(quantity), updatedPackagingAccessory.quantity()); // Bez zmian
     }
 
     @ParameterizedTest
@@ -448,17 +467,20 @@ public class AccessoryServiceTest {
             String initialPackagingSize,
             String initialDimensions,
             String initialNetPricePerQuantity,
+            String initialQuantity,
             String updatedName,
             String updatedPackagingSize,
             String updatedDimensions,
             String updatedNetPricePerQuantity,
+            String updatedQuantity,
             String expectedName,
             String expectedPackagingSize,
             String expectedDimensions,
-            BigDecimal expectedNetPricePerQuantity
+            BigDecimal expectedNetPricePerQuantity,
+            double expectedQuantity
     ) {
         // given
-        accessoryService.savePackagingAccessory(initialName, initialPackagingSize, initialDimensions, initialNetPricePerQuantity);
+        accessoryService.savePackagingAccessory(initialName, initialPackagingSize, initialDimensions, initialNetPricePerQuantity, initialQuantity);
         PackagingAccessory savedAccessory = accessoryService.getAllPackagingAccessories().getFirst();
         assertEquals(1, accessoryService.getAllPackagingAccessories().size());
 
@@ -468,7 +490,8 @@ public class AccessoryServiceTest {
                 updatedName,
                 updatedPackagingSize,
                 updatedDimensions,
-                updatedNetPricePerQuantity
+                updatedNetPricePerQuantity,
+                updatedQuantity
         );
 
         // then
@@ -478,6 +501,7 @@ public class AccessoryServiceTest {
         assertEquals(expectedPackagingSize, updatedAccessory.packagingSize());
         assertEquals(expectedDimensions, updatedAccessory.dimensions());
         assertEquals(expectedNetPricePerQuantity, updatedAccessory.netPricePerQuantity());
+        assertEquals(expectedQuantity, updatedAccessory.quantity());
     }
 
     @Test
@@ -489,6 +513,7 @@ public class AccessoryServiceTest {
         String packagingSize = "L";
         String dimensions = "20x30x40";
         String netPricePerQuantity = "10.00";
+        String quantity = "100.0";
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
@@ -497,7 +522,8 @@ public class AccessoryServiceTest {
                         name,
                         packagingSize,
                         dimensions,
-                        netPricePerQuantity
+                        netPricePerQuantity,
+                        quantity
                 )
         );
         assertTrue(exception.getErrorCodes().contains(ErrorCode.NOT_FOUND));
@@ -509,13 +535,16 @@ public class AccessoryServiceTest {
     void shouldNotUpdateFastenersAccessoryWithInvalidData(
             String initialName,
             String initialNetPricePerQuantity,
+            String initialQuantity,
             String updatedName,
             String updatedNetPricePerQuantity,
+            String updatedQuantity,
             String expectedName,
-            BigDecimal expectedNetPricePerQuantity
+            BigDecimal expectedNetPricePerQuantity,
+            double expectedQuantity
     ) {
         // given
-        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity);
+        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity);
         FastenersAccessory savedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
 
@@ -523,7 +552,8 @@ public class AccessoryServiceTest {
         accessoryService.updateFastenersAccessory(
                 savedAccessory.id(),
                 updatedName,
-                updatedNetPricePerQuantity
+                updatedNetPricePerQuantity,
+                updatedQuantity
         );
 
         // then
@@ -531,6 +561,7 @@ public class AccessoryServiceTest {
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
         assertEquals(expectedName, updatedAccessory.name());
         assertEquals(expectedNetPricePerQuantity, updatedAccessory.netPricePerQuantity());
+        assertEquals(expectedQuantity, updatedAccessory.quantity());
     }
 
     @Test
@@ -539,19 +570,22 @@ public class AccessoryServiceTest {
         // given
         String initialName = "Screw Set";
         String initialNetPricePerQuantity = "15.99";
+        String initialQuantity = "100.0";
 
-        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity);
+        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity);
         FastenersAccessory savedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
 
         String updatedName = "Screw Set Deluxe";
         String updatedNetPricePerQuantity = "19.99";
+        String updatedQuantity = "120.0";
 
         // when
         accessoryService.updateFastenersAccessory(
                 savedAccessory.id(),
                 updatedName,
-                updatedNetPricePerQuantity
+                updatedNetPricePerQuantity,
+                updatedQuantity
         );
 
         // then
@@ -559,6 +593,7 @@ public class AccessoryServiceTest {
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
         assertEquals(updatedName, updatedAccessory.name());
         assertEquals(new BigDecimal(updatedNetPricePerQuantity), updatedAccessory.netPricePerQuantity());
+        assertEquals(Double.parseDouble(updatedQuantity), updatedAccessory.quantity());
     }
 
     @Test
@@ -567,8 +602,9 @@ public class AccessoryServiceTest {
         // given
         String initialName = "Bolt Set";
         String initialNetPricePerQuantity = "25.50";
+        String initialQuantity = "50.0";
 
-        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity);
+        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity);
         FastenersAccessory savedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
 
@@ -578,6 +614,7 @@ public class AccessoryServiceTest {
         accessoryService.updateFastenersAccessory(
                 savedAccessory.id(),
                 updatedName,
+                null,
                 null
         );
 
@@ -586,6 +623,7 @@ public class AccessoryServiceTest {
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
         assertEquals(updatedName, updatedAccessory.name());
         assertEquals(new BigDecimal(initialNetPricePerQuantity), updatedAccessory.netPricePerQuantity());
+        assertEquals(Double.parseDouble(initialQuantity), updatedAccessory.quantity());
     }
 
     @Test
@@ -595,168 +633,103 @@ public class AccessoryServiceTest {
         String nonExistentId = "non-existent-id";
         String name = "Nut Set";
         String netPricePerQuantity = "10.00";
+        String quantity = "200.0";
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
                 accessoryService.updateFastenersAccessory(
                         nonExistentId,
                         name,
-                        netPricePerQuantity
+                        netPricePerQuantity,
+                        quantity
                 )
         );
         assertTrue(exception.getErrorCodes().contains(ErrorCode.NOT_FOUND));
     }
 
-    private static Stream<Arguments> fastenersAccessoryUpdateTestCases() {
-        return Stream.of(
-                // Aktualizacja tylko nazwy (poprawna)
-                Arguments.of(
-                        "Screw Set", "15.99",
-                        "Screw Set Pro", null,
-                        "Screw Set Pro", new BigDecimal("15.99")
-                ),
-                // Aktualizacja z niepoprawną nazwą (zbyt krótka) - nazwa nie powinna się zmienić
-                Arguments.of(
-                        "Bolt Set", "25.50",
-                        "Bt", null,
-                        "Bolt Set", new BigDecimal("25.50")
-                ),
-                // Aktualizacja z mieszanką poprawnych i niepoprawnych danych
-                Arguments.of(
-                        "Nut Set", "10.00",
-                        null, "-5.00",
-                        "Nut Set", new BigDecimal("10.00")
-                ),
-                // Aktualizacja z pustymi wartościami (pola nie powinny się zmienić)
-                Arguments.of(
-                        "Washer Set", "5.00",
-                        null, null,
-                        "Washer Set", new BigDecimal("5.00")
-                )
-        );
-    }
+    // Data Providers
 
-    private static Stream<Object[]> invalidFilamentDataProvider() {
+    private static Stream<Arguments> invalidFilamentDataProvider() {
         return Stream.of(
-                // Niepoprawna nazwa (zbyt krótka)
-                new Object[]{"PL", "XYZ", "PLA", "200.0", "60.0", "19.99", "#FFFFFF", "Description", "name", "PL"},
-                // Niepoprawny producent (zbyt krótki)
-                new Object[]{"PLA 1kg", "XY", "PLA", "200.0", "60.0", "19.99", "#FFFFFF", "Description", "producer", "XY"},
-                // Niepoprawny filamentType (zbyt krótki)
-                new Object[]{"PLA 1kg", "XYZ", "PL", "200.0", "60.0", "19.99", "#FFFFFF", "Description", "filamentType", "PL"},
-                // Niepoprawna temperatura druku (nie liczba)
-                new Object[]{"PLA 1kg", "XYZ", "PLA", "abc", "60.0", "19.99", "#FFFFFF", "Description", "printTemperature", "abc"},
-                // Niepoprawna temperatura stołu (ujemna)
-                new Object[]{"PLA 1kg", "XYZ", "PLA", "200.0", "-10.0", "19.99", "#FFFFFF", "Description", "deskTemperature", "-10.0"},
-                // Niepoprawna cena za kg (zły format)
-                new Object[]{"PLA 1kg", "XYZ", "PLA", "200.0", "60.0", "19.999", "#FFFFFF", "Description", "pricePerKg", "19.999"},
-                // Niepoprawny kolor (zły format hex)
-                new Object[]{"PLA 1kg", "XYZ", "PLA", "200.0", "60.0", "19.99", "FFFFFF", "Description", "color", "FFFFFF"},
-                // Brak nazwy
-                new Object[]{null, "XYZ", "PLA", "200.0", "60.0", "19.99", "#FFFFFF", "Description", "name", "null"},
-                // Brak ceny za kg
-                new Object[]{"PLA 1kg", "XYZ", "PLA", "200.0", "60.0", null, "#FFFFFF", "Description", "pricePerKg", "null"}
+                // Niepoprawna ilość (ujemna)
+                Arguments.of("PLA 1kg", "XYZ", "PLA", "200.0", "60.0", "19.99", "#FFFFFF", "Description", "-5.0", "quantity", "-5.0"),
+                // Niepoprawna ilość (nie liczba)
+                Arguments.of("PLA 1kg", "XYZ", "PLA", "200.0", "60.0", "19.99", "#FFFFFF", "Description", "abc", "quantity", "abc"),
+                // Brak ilości
+                Arguments.of("PLA 1kg", "XYZ", "PLA", "200.0", "60.0", "19.99", "#FFFFFF", "Description", null, "quantity", "null")
         );
     }
 
     private static Stream<Arguments> filamentUpdateTestCases() {
         return Stream.of(
-                // Aktualizacja tylko nazwy
+                // Aktualizacja ilości
                 Arguments.of(
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description",
-                        "New PLA", null, null, null, null, null, null, null,
-                        "New PLA", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description"
+                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description", 10.0,
+                        null, null, null, null, null, null, null, null, "15.0",
+                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description", 15.0
                 ),
-                // Aktualizacja tylko producenta
+                // Aktualizacja z niepoprawną ilością (ujemna) - ilość nie powinna się zmienić
                 Arguments.of(
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description",
-                        null, "ABC", null, null, null, null, null, null,
-                        "PLA 1kg", "ABC", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description"
-                ),
-                // Aktualizacja wszystkich pól
-                Arguments.of(
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description",
-                        "ABS 1kg", "DEF", "ABS", "230.0", "80.0", "29.99", "#0000FF", "New Description",
-                        "ABS 1kg", "DEF", "ABS", 230.0, 80.0, new BigDecimal("29.99"), "#0000FF", "New Description"
-                ),
-                // Niepoprawna aktualizacja (błędny kolor) - pole powinno zostać bez zmian
-                Arguments.of(
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description",
-                        null, null, null, null, null, null, "ZZZZZZ", null,
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description"
-                ),
-                // Aktualizacja z usunięciem opisu (pole opcjonalne)
-                Arguments.of(
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description",
-                        null, null, null, null, null, null, null, "",
-                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description"
+                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description", 10.0,
+                        null, null, null, null, null, null, null, null, "-5.0",
+                        "PLA 1kg", "XYZ", "PLA", 200.0, 60.0, new BigDecimal("19.99"), "#FFFFFF", "Description", 10.0
                 )
         );
     }
 
-
     private static Stream<Arguments> invalidPackagingAccessoryDataProvider() {
         return Stream.of(
-                // Niepoprawna nazwa (zbyt krótka)
-                Arguments.of("Bx", "S", "10x20x30", "5.50", "name", "Bx"),
-                // Niepoprawny rozmiar opakowania (pusty)
-                Arguments.of("Box A", "", "10x20x30", "5.50", "packagingSize", ""),
-                // Niepoprawne wymiary (brak części)
-                Arguments.of("Box B", "M", "15x25", "7.75", "dimensions", "15x25"),
-                // Niepoprawne wymiary (nie liczba)
-                Arguments.of("Box C", "L", "15x25xabc", "7.75", "dimensions", "15x25xabc"),
-                // Niepoprawna cena za ilość (ujemna)
-                Arguments.of("Box D", "XL", "20x30x40", "-10.00", "netPricePerQuantity", "-10.00"),
-                // Niepoprawna cena za ilość (więcej niż dwa miejsca po przecinku)
-                Arguments.of("Box E", "S", "25x35x45", "10.999", "netPricePerQuantity", "10.999"),
-                // Brak nazwy
-                Arguments.of(null, "S", "10x20x30", "5.50", "name", "null"),
-                // Brak ceny za ilość
-                Arguments.of("Box F", "M", "10x20x30", null, "netPricePerQuantity", "null")
+                // Niepoprawna ilość (ujemna)
+                Arguments.of("Box A", "S", "10x20x30", "5.50", "-10.0", "quantity", "-10.0"),
+                // Niepoprawna ilość (nie liczba)
+                Arguments.of("Box B", "M", "15x25x35", "7.75", "abc", "quantity", "abc"),
+                // Brak ilości
+                Arguments.of("Box C", "L", "20x30x40", "10.00", null, "quantity", "null")
         );
     }
 
     private static Stream<Arguments> packagingAccessoryUpdateTestCases() {
         return Stream.of(
-                // Aktualizacja tylko nazwy (poprawna)
+                // Aktualizacja ilości
                 Arguments.of(
-                        "Box A", "S", "10x20x30", "5.50",
-                        "Box B", null, null, null,
-                        "Box B", "S", "10x20x30", new BigDecimal("5.50")
+                        "Box A", "S", "10x20x30", "5.50", "50.0",
+                        null, null, null, null, "60.0",
+                        "Box A", "S", "10x20x30", new BigDecimal("5.50"), 60.0
                 ),
-                // Aktualizacja z niepoprawną nazwą (zbyt krótka) - nazwa nie powinna się zmienić
+                // Aktualizacja z niepoprawną ilością (ujemna) - ilość nie powinna się zmienić
                 Arguments.of(
-                        "Box A", "S", "10x20x30", "5.50",
-                        "Bx", null, null, null,
-                        "Box A", "S", "10x20x30", new BigDecimal("5.50")
-                ),
-                // Aktualizacja wszystkich pól z mieszanką poprawnych i niepoprawnych danych
-                Arguments.of(
-                        "Box A", "S", "10x20x30", "5.50",
-                        "Box C", "L", "15x25xabc", "-10.00",
-                        "Box C", "L", "10x20x30", new BigDecimal("5.50")
-                ),
-                // Aktualizacja z pustymi wartościami (pola nie powinny się zmienić)
-                Arguments.of(
-                        "Box A", "S", "10x20x30", "5.50",
-                        null, null, null, null,
-                        "Box A", "S", "10x20x30", new BigDecimal("5.50")
+                        "Box A", "S", "10x20x30", "5.50", "50.0",
+                        null, null, null, null, "-10.0",
+                        "Box A", "S", "10x20x30", new BigDecimal("5.50"), 50.0
                 )
         );
     }
 
     private static Stream<Arguments> invalidFastenersAccessoryDataProvider() {
         return Stream.of(
-                // Niepoprawna nazwa (zbyt krótka)
-                Arguments.of("SC", "15.99", "name", "SC"),
-                // Niepoprawna cena za ilość (ujemna)
-                Arguments.of("Screw Set", "-10.00", "netPricePerQuantity", "-10.00"),
-                // Niepoprawna cena za ilość (więcej niż dwa miejsca po przecinku)
-                Arguments.of("Bolt Set", "25.999", "netPricePerQuantity", "25.999"),
-                // Brak nazwy
-                Arguments.of(null, "15.99", "name", "null"),
-                // Brak ceny za ilość
-                Arguments.of("Nut Set", null, "netPricePerQuantity", "null")
+                // Niepoprawna ilość (ujemna)
+                Arguments.of("Screw Set", "15.99", "-100.0", "quantity", "-100.0"),
+                // Niepoprawna ilość (nie liczba)
+                Arguments.of("Bolt Set", "25.50", "abc", "quantity", "abc"),
+                // Brak ilości
+                Arguments.of("Nut Set", "10.00", null, "quantity", "null")
+        );
+    }
+
+    private static Stream<Arguments> fastenersAccessoryUpdateTestCases() {
+        return Stream.of(
+                // Aktualizacja ilości
+                Arguments.of(
+                        "Screw Set", "15.99", "100.0",
+                        null, null, "150.0",
+                        "Screw Set", new BigDecimal("15.99"), 150.0
+                ),
+                // Aktualizacja z niepoprawną ilością (ujemna) - ilość nie powinna się zmienić
+                Arguments.of(
+                        "Bolt Set", "25.50", "50.0",
+                        null, null, "-20.0",
+                        "Bolt Set", new BigDecimal("25.50"), 50.0
+                )
         );
     }
 }
