@@ -1,4 +1,4 @@
-package pl.vabanq.erp.domain.accessory.model;
+package pl.vabanq.erp.domain.products.accessory.model;
 
 import pl.vabanq.erp.domain.Identifiable;
 
@@ -9,6 +9,7 @@ public record PackagingAccessory(
     String name,
     String packagingSize,
     String dimensions, //__x__x__
-    BigDecimal netPricePerQuantity
+    BigDecimal netPricePerQuantity,
+    double quantity
 ) implements Identifiable {
 }
