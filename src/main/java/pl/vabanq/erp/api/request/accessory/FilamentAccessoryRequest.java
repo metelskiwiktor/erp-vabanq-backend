@@ -1,4 +1,4 @@
-package pl.vabanq.erp.api.request;
+package pl.vabanq.erp.api.request.accessory;
 
 public record FilamentAccessoryRequest(
         String name,

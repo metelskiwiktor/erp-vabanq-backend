@@ -1,4 +1,4 @@
-package pl.vabanq.erp.api.response;
+package pl.vabanq.erp.api.response.product;
 
 import pl.vabanq.erp.domain.products.product.model.PrintTime;
 import pl.vabanq.erp.domain.products.product.model.ProductFile;

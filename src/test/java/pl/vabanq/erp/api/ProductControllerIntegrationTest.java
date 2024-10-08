@@ -9,8 +9,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import pl.vabanq.erp.api.request.ProductRequest;
-import pl.vabanq.erp.api.response.ProductResponse;
+import pl.vabanq.erp.api.request.product.ProductRequest;
+import pl.vabanq.erp.api.response.product.ProductResponse;
 import pl.vabanq.erp.domain.products.accessory.AccessoryService;
 import pl.vabanq.erp.domain.products.product.ProductService;
 import pl.vabanq.erp.infrastructure.database.accessory.AccessoryRepositoryJPA;
@@ -60,8 +60,8 @@ public class ProductControllerIntegrationTest {
         accessoryRepository.cleanUp();
 
         // Use AccessoryService to create accessories and get their IDs
-        screwId = accessoryService.saveFastenersAccessory("Screw", "5.99", "100").id();
-        boltId = accessoryService.saveFastenersAccessory("Bolt", "3.50", "50").id();
+        screwId = accessoryService.saveFastenersAccessory("Screw", "5.99", "100", "description").id();
+        boltId = accessoryService.saveFastenersAccessory("Bolt", "3.50", "50", "description").id();
     }
 
     @Test

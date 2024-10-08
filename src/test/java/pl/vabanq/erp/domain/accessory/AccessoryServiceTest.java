@@ -233,9 +233,10 @@ public class AccessoryServiceTest {
         String dimensions = "10x20x30";
         String netPricePerQuantity = "5.50";
         String quantity = "50.0";
+        String description = "description";
 
         // when
-        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
+        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity, description);
 
         // then
         List<PackagingAccessory> packagingAccessories = accessoryService.getAllPackagingAccessories();
@@ -247,6 +248,7 @@ public class AccessoryServiceTest {
         assertEquals(dimensions, savedPackagingAccessory.dimensions());
         assertEquals(new BigDecimal(netPricePerQuantity), savedPackagingAccessory.netPricePerQuantity());
         assertEquals(Double.parseDouble(quantity), savedPackagingAccessory.quantity());
+        assertEquals(description, savedPackagingAccessory.description());
     }
 
     @Test
@@ -258,16 +260,18 @@ public class AccessoryServiceTest {
         String dimensions1 = "10x20x30";
         String netPricePerQuantity1 = "5.50";
         String quantity1 = "50.0";
+        String description1 = "description1";
 
         String name2 = "Box B";
         String packagingSize2 = "M";
         String dimensions2 = "15x25x35";
         String netPricePerQuantity2 = "7.75";
         String quantity2 = "30.0";
+        String description2 = "description2";
 
         // when
-        accessoryService.savePackagingAccessory(name1, packagingSize1, dimensions1, netPricePerQuantity1, quantity1);
-        accessoryService.savePackagingAccessory(name2, packagingSize2, dimensions2, netPricePerQuantity2, quantity2);
+        accessoryService.savePackagingAccessory(name1, packagingSize1, dimensions1, netPricePerQuantity1, quantity1, description1);
+        accessoryService.savePackagingAccessory(name2, packagingSize2, dimensions2, netPricePerQuantity2, quantity2, description2);
 
         // then
         List<PackagingAccessory> packagingAccessories = accessoryRepository.getAllPackagingAccessories();
@@ -281,12 +285,14 @@ public class AccessoryServiceTest {
         assertEquals(dimensions1, packaging1.dimensions());
         assertEquals(new BigDecimal(netPricePerQuantity1), packaging1.netPricePerQuantity());
         assertEquals(Double.parseDouble(quantity1), packaging1.quantity());
+        assertEquals(description1, packaging1.description());
 
         assertEquals(name2, packaging2.name());
         assertEquals(packagingSize2, packaging2.packagingSize());
         assertEquals(dimensions2, packaging2.dimensions());
         assertEquals(new BigDecimal(netPricePerQuantity2), packaging2.netPricePerQuantity());
         assertEquals(Double.parseDouble(quantity2), packaging2.quantity());
+        assertEquals(description2, packaging2.description());
     }
 
     @ParameterizedTest
@@ -297,10 +303,10 @@ public class AccessoryServiceTest {
                                                                     String quantity, String expectedField, String expectedValue) {
         // given
         // invalid data passed from MethodSource
-
+        String optionalDescription = "description";
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
-                accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity)
+                accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity, optionalDescription)
         );
         assertTrue(exception.getMessage().contains(expectedField));
         assertTrue(exception.getMessage().contains(expectedValue));
@@ -313,9 +319,10 @@ public class AccessoryServiceTest {
         String name = "Screw Set";
         String netPricePerQuantity = "15.99";
         String quantity = "100.0";
+        String description = "description";
 
         // when
-        accessoryService.saveFastenersAccessory(name, netPricePerQuantity, quantity);
+        accessoryService.saveFastenersAccessory(name, netPricePerQuantity, quantity, description);
 
         // then
         List<FastenersAccessory> fastenersAccessories = accessoryRepository.getAllFastenersAccessories();
@@ -325,6 +332,7 @@ public class AccessoryServiceTest {
         assertEquals(name, savedFastenersAccessory.name());
         assertEquals(new BigDecimal(netPricePerQuantity), savedFastenersAccessory.netPricePerQuantity());
         assertEquals(Double.parseDouble(quantity), savedFastenersAccessory.quantity());
+        assertEquals(description, savedFastenersAccessory.description());
     }
 
     @Test
@@ -334,14 +342,16 @@ public class AccessoryServiceTest {
         String name1 = "Screw Set";
         String netPricePerQuantity1 = "15.99";
         String quantity1 = "100.0";
+        String description1 = "description";
 
         String name2 = "Bolt Set";
         String netPricePerQuantity2 = "25.50";
         String quantity2 = "50.0";
+        String description2 = "description2";
 
         // when
-        accessoryService.saveFastenersAccessory(name1, netPricePerQuantity1, quantity1);
-        accessoryService.saveFastenersAccessory(name2, netPricePerQuantity2, quantity2);
+        accessoryService.saveFastenersAccessory(name1, netPricePerQuantity1, quantity1, description1);
+        accessoryService.saveFastenersAccessory(name2, netPricePerQuantity2, quantity2, description2);
 
         // then
         List<FastenersAccessory> fastenersAccessories = accessoryRepository.getAllFastenersAccessories();
@@ -366,10 +376,11 @@ public class AccessoryServiceTest {
                                                                     String quantity, String expectedField, String expectedValue) {
         // given
         // invalid data passed from MethodSource
+        String optionalDescription = "description";
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
-                accessoryService.saveFastenersAccessory(name, netPricePerQuantity, quantity)
+                accessoryService.saveFastenersAccessory(name, netPricePerQuantity, quantity, optionalDescription)
         );
         assertTrue(exception.getMessage().contains(expectedField));
         assertTrue(exception.getMessage().contains(expectedValue));
@@ -384,8 +395,9 @@ public class AccessoryServiceTest {
         String dimensions = "10x20x30";
         String netPricePerQuantity = "5.50";
         String quantity = "50.0";
+        String description = "description";
 
-        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
+        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity, description);
 
         List<PackagingAccessory> packagingAccessories = accessoryService.getAllPackagingAccessories();
         assertEquals(1, packagingAccessories.size());
@@ -397,6 +409,7 @@ public class AccessoryServiceTest {
         String updatedDimensions = "15x25x35";
         String updatedNetPricePerQuantity = "7.75";
         String updatedQuantity = "60.0";
+        String updatedDescription = "description2";
 
         accessoryService.updatePackagingAccessory(
                 savedPackagingAccessory.id(),
@@ -404,7 +417,8 @@ public class AccessoryServiceTest {
                 updatedPackagingSize,
                 updatedDimensions,
                 updatedNetPricePerQuantity,
-                updatedQuantity
+                updatedQuantity,
+                updatedDescription
         );
 
         // then
@@ -416,6 +430,7 @@ public class AccessoryServiceTest {
         assertEquals(updatedDimensions, updatedPackagingAccessory.dimensions());
         assertEquals(new BigDecimal(updatedNetPricePerQuantity), updatedPackagingAccessory.netPricePerQuantity());
         assertEquals(Double.parseDouble(updatedQuantity), updatedPackagingAccessory.quantity());
+        assertEquals(updatedDescription, updatedPackagingAccessory.description());
     }
 
     @Test
@@ -427,8 +442,9 @@ public class AccessoryServiceTest {
         String dimensions = "10x20x30";
         String netPricePerQuantity = "5.50";
         String quantity = "50.0";
+        String description = "Small packaging box";
 
-        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
+        accessoryService.savePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity, description);
 
         List<PackagingAccessory> packagingAccessories = accessoryService.getAllPackagingAccessories();
         assertEquals(1, packagingAccessories.size());
@@ -445,7 +461,8 @@ public class AccessoryServiceTest {
                 null,
                 updatedDimensions,
                 updatedNetPricePerQuantity,
-                null
+                null,
+                null // Description remains unchanged
         );
 
         // then
@@ -453,10 +470,11 @@ public class AccessoryServiceTest {
         assertEquals(1, accessoryService.getAllPackagingAccessories().size());
 
         assertEquals(updatedName, updatedPackagingAccessory.name());
-        assertEquals(packagingSize, updatedPackagingAccessory.packagingSize()); // Bez zmian
+        assertEquals(packagingSize, updatedPackagingAccessory.packagingSize()); // Unchanged
         assertEquals(updatedDimensions, updatedPackagingAccessory.dimensions());
         assertEquals(new BigDecimal(updatedNetPricePerQuantity), updatedPackagingAccessory.netPricePerQuantity());
-        assertEquals(Double.parseDouble(quantity), updatedPackagingAccessory.quantity()); // Bez zmian
+        assertEquals(Double.parseDouble(quantity), updatedPackagingAccessory.quantity()); // Unchanged
+        assertEquals(description, updatedPackagingAccessory.description()); // Unchanged
     }
 
     @ParameterizedTest
@@ -480,7 +498,8 @@ public class AccessoryServiceTest {
             double expectedQuantity
     ) {
         // given
-        accessoryService.savePackagingAccessory(initialName, initialPackagingSize, initialDimensions, initialNetPricePerQuantity, initialQuantity);
+        String description = "description";
+        accessoryService.savePackagingAccessory(initialName, initialPackagingSize, initialDimensions, initialNetPricePerQuantity, initialQuantity, description);
         PackagingAccessory savedAccessory = accessoryService.getAllPackagingAccessories().getFirst();
         assertEquals(1, accessoryService.getAllPackagingAccessories().size());
 
@@ -491,7 +510,8 @@ public class AccessoryServiceTest {
                 updatedPackagingSize,
                 updatedDimensions,
                 updatedNetPricePerQuantity,
-                updatedQuantity
+                updatedQuantity,
+                description
         );
 
         // then
@@ -502,6 +522,7 @@ public class AccessoryServiceTest {
         assertEquals(expectedDimensions, updatedAccessory.dimensions());
         assertEquals(expectedNetPricePerQuantity, updatedAccessory.netPricePerQuantity());
         assertEquals(expectedQuantity, updatedAccessory.quantity());
+        assertEquals(description, updatedAccessory.description()); // Assert on description
     }
 
     @Test
@@ -514,6 +535,7 @@ public class AccessoryServiceTest {
         String dimensions = "20x30x40";
         String netPricePerQuantity = "10.00";
         String quantity = "100.0";
+        String description = "Non-existent box";
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
@@ -523,10 +545,11 @@ public class AccessoryServiceTest {
                         packagingSize,
                         dimensions,
                         netPricePerQuantity,
-                        quantity
+                        quantity,
+                        description
                 )
         );
-        assertTrue(exception.getErrorCodes().contains(ErrorCode.NOT_FOUND));
+        assertEquals(exception.getErrorCode(), ErrorCode.NOT_FOUND);
     }
 
     @ParameterizedTest
@@ -544,7 +567,8 @@ public class AccessoryServiceTest {
             double expectedQuantity
     ) {
         // given
-        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity);
+        String description = "description";
+        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity, description);
         FastenersAccessory savedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
 
@@ -553,7 +577,8 @@ public class AccessoryServiceTest {
                 savedAccessory.id(),
                 updatedName,
                 updatedNetPricePerQuantity,
-                updatedQuantity
+                updatedQuantity,
+                description
         );
 
         // then
@@ -562,6 +587,7 @@ public class AccessoryServiceTest {
         assertEquals(expectedName, updatedAccessory.name());
         assertEquals(expectedNetPricePerQuantity, updatedAccessory.netPricePerQuantity());
         assertEquals(expectedQuantity, updatedAccessory.quantity());
+        assertEquals(description, updatedAccessory.description());
     }
 
     @Test
@@ -571,21 +597,24 @@ public class AccessoryServiceTest {
         String initialName = "Screw Set";
         String initialNetPricePerQuantity = "15.99";
         String initialQuantity = "100.0";
+        String description = "Set of screws";
 
-        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity);
+        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity, description);
         FastenersAccessory savedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
 
         String updatedName = "Screw Set Deluxe";
         String updatedNetPricePerQuantity = "19.99";
         String updatedQuantity = "120.0";
+        String updatedDescription = "Deluxe set of screws";
 
         // when
         accessoryService.updateFastenersAccessory(
                 savedAccessory.id(),
                 updatedName,
                 updatedNetPricePerQuantity,
-                updatedQuantity
+                updatedQuantity,
+                updatedDescription
         );
 
         // then
@@ -594,6 +623,7 @@ public class AccessoryServiceTest {
         assertEquals(updatedName, updatedAccessory.name());
         assertEquals(new BigDecimal(updatedNetPricePerQuantity), updatedAccessory.netPricePerQuantity());
         assertEquals(Double.parseDouble(updatedQuantity), updatedAccessory.quantity());
+        assertEquals(updatedDescription, updatedAccessory.description()); // Validate updated description
     }
 
     @Test
@@ -603,8 +633,9 @@ public class AccessoryServiceTest {
         String initialName = "Bolt Set";
         String initialNetPricePerQuantity = "25.50";
         String initialQuantity = "50.0";
+        String description = "Set of bolts";
 
-        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity);
+        accessoryService.saveFastenersAccessory(initialName, initialNetPricePerQuantity, initialQuantity, description);
         FastenersAccessory savedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
 
@@ -615,15 +646,17 @@ public class AccessoryServiceTest {
                 savedAccessory.id(),
                 updatedName,
                 null,
-                null
+                null,
+                null // Leave description unchanged
         );
 
         // then
         FastenersAccessory updatedAccessory = accessoryRepository.getAllFastenersAccessories().getFirst();
         assertEquals(1, accessoryRepository.getAllFastenersAccessories().size());
         assertEquals(updatedName, updatedAccessory.name());
-        assertEquals(new BigDecimal(initialNetPricePerQuantity), updatedAccessory.netPricePerQuantity());
-        assertEquals(Double.parseDouble(initialQuantity), updatedAccessory.quantity());
+        assertEquals(new BigDecimal(initialNetPricePerQuantity), updatedAccessory.netPricePerQuantity()); // Unchanged
+        assertEquals(Double.parseDouble(initialQuantity), updatedAccessory.quantity()); // Unchanged
+        assertEquals(description, updatedAccessory.description()); // Unchanged
     }
 
     @Test
@@ -634,6 +667,7 @@ public class AccessoryServiceTest {
         String name = "Nut Set";
         String netPricePerQuantity = "10.00";
         String quantity = "200.0";
+        String description = "Set of nuts";
 
         // when & then
         DomainException exception = assertThrows(DomainException.class, () ->
@@ -641,13 +675,13 @@ public class AccessoryServiceTest {
                         nonExistentId,
                         name,
                         netPricePerQuantity,
-                        quantity
+                        quantity,
+                        description
                 )
         );
-        assertTrue(exception.getErrorCodes().contains(ErrorCode.NOT_FOUND));
+        assertEquals(exception.getErrorCode(), ErrorCode.NOT_FOUND);
     }
 
-    // Data Providers
 
     private static Stream<Arguments> invalidFilamentDataProvider() {
         return Stream.of(

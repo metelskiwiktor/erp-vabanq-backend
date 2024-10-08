@@ -8,6 +8,7 @@ public record FastenersAccessory(
     String id,
     String name,
     BigDecimal netPricePerQuantity,
-    double quantity
+    double quantity,
+    String description
 ) implements Identifiable {
 }

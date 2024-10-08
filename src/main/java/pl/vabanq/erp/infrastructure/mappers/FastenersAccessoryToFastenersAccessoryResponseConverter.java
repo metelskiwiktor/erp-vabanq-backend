@@ -2,7 +2,7 @@ package pl.vabanq.erp.infrastructure.mappers;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import pl.vabanq.erp.api.response.FastenersAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.FastenersAccessoryResponse;
 import pl.vabanq.erp.domain.products.accessory.model.FastenersAccessory;
 
 @Component
@@ -14,7 +14,8 @@ public class FastenersAccessoryToFastenersAccessoryResponseConverter implements 
                 source.id(),
                 source.name(),
                 source.netPricePerQuantity(),
-                source.quantity()
+                source.quantity(),
+                source.description()
         );
     }
 }

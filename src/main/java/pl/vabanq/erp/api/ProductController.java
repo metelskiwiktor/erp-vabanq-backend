@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import pl.vabanq.erp.api.request.ProductRequest;
-import pl.vabanq.erp.api.response.ProductResponse;
+import pl.vabanq.erp.api.request.product.ProductRequest;
+import pl.vabanq.erp.api.response.product.ProductResponse;
 import pl.vabanq.erp.domain.products.product.ProductService;
 import pl.vabanq.erp.domain.products.product.model.Product;
 
@@ -38,6 +38,7 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id,
                                                          @RequestBody ProductRequest request) {
@@ -48,6 +49,24 @@ public class ProductController {
         );
         ProductResponse response = conversionService.convert(product, ProductResponse.class);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/file")
+    public ResponseEntity<ProductResponse> addFile(@PathVariable String id,
+                                                   @RequestParam("file") MultipartFile file) throws IOException {
+        byte[] fileData = file.getBytes();
+        String filename = file.getOriginalFilename();
+
+        Product updatedProduct = productService.addFile(id, fileData, filename);
+        ProductResponse response = conversionService.convert(updatedProduct, ProductResponse.class);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}/file/{fileId}")
+    public ResponseEntity<Void> deleteFile(@PathVariable String id, @PathVariable String fileId) {
+        productService.deleteFileById(id, fileId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
@@ -62,26 +81,6 @@ public class ProductController {
         ProductResponse response = conversionService.convert(updatedProduct, ProductResponse.class);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    // Endpoint do dodania pliku do produktu
-    @PostMapping("/{id}/file")
-    public ResponseEntity<ProductResponse> addFile(@PathVariable String id,
-                                                   @RequestParam("file") MultipartFile file) throws IOException {
-        byte[] fileData = file.getBytes();
-        String filename = file.getOriginalFilename();
-
-        Product updatedProduct = productService.addFile(id, fileData, filename);
-        ProductResponse response = conversionService.convert(updatedProduct, ProductResponse.class);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    // Endpoint do usunięcia pliku z produktu
-    @DeleteMapping("/{id}/file/{fileId}")
-    public ResponseEntity<Void> deleteFile(@PathVariable String id, @PathVariable String fileId) {
-        productService.deleteFileById(id, fileId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping

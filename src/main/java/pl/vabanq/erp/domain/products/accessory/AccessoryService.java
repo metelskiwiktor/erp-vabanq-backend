@@ -104,8 +104,9 @@ public class AccessoryService {
         }
     }
 
+    // Save PackagingAccessory with optional description
     public PackagingAccessory savePackagingAccessory(String name, String packagingSize, String dimensions,
-                                                     String netPricePerQuantity, String quantity) {
+                                                     String netPricePerQuantity, String quantity, String description) {
         try {
             LOGGER.info("Attempting to save PackagingAccessory with name: {}", name);
             Validator.validatePackagingAccessory(name, packagingSize, dimensions, netPricePerQuantity, quantity);
@@ -119,7 +120,8 @@ public class AccessoryService {
                     packagingSize,
                     dimensions,
                     formattedNetPricePerQuantity,
-                    formattedQuantity
+                    formattedQuantity,
+                    description // Optional description
             );
 
             accessoryRepository.savePackagingAccessory(packagingAccessory);
@@ -133,8 +135,9 @@ public class AccessoryService {
         }
     }
 
+    // Update PackagingAccessory with description validation
     public PackagingAccessory updatePackagingAccessory(String id, String name, String packagingSize, String dimensions,
-                                                       String netPricePerQuantity, String quantity) {
+                                                       String netPricePerQuantity, String quantity, String description) {
         try {
             LOGGER.info("Attempting to update PackagingAccessory with id: {}", id);
             PackagingAccessory oldPackagingAccessory = accessoryRepository.getPackagingAccessory(id);
@@ -148,6 +151,8 @@ public class AccessoryService {
                     ? new BigDecimal(netPricePerQuantity) : oldPackagingAccessory.netPricePerQuantity();
             double updatedQuantity = Validator.isQuantityValid(quantity)
                     ? Double.parseDouble(quantity) : oldPackagingAccessory.quantity();
+            String updatedDescription = ValidationUtils.isDescriptionValid(description)
+                    ? description : oldPackagingAccessory.description();
 
             PackagingAccessory updatedPackagingAccessory = new PackagingAccessory(
                     id,
@@ -155,7 +160,8 @@ public class AccessoryService {
                     updatedPackagingSize,
                     updatedDimensions,
                     updatedNetPricePerQuantity,
-                    updatedQuantity
+                    updatedQuantity,
+                    updatedDescription // Validated description
             );
 
             accessoryRepository.savePackagingAccessory(updatedPackagingAccessory);
@@ -169,7 +175,8 @@ public class AccessoryService {
         }
     }
 
-    public FastenersAccessory saveFastenersAccessory(String name, String netPricePerQuantity, String quantity) {
+    // Save FastenersAccessory with optional description
+    public FastenersAccessory saveFastenersAccessory(String name, String netPricePerQuantity, String quantity, String description) {
         try {
             LOGGER.info("Attempting to save FastenersAccessory with name: {}", name);
             Validator.validateFastenersAccessory(name, netPricePerQuantity, quantity);
@@ -181,7 +188,8 @@ public class AccessoryService {
                     UUIDGenerator.generateUUID(),
                     name,
                     formattedNetPricePerQuantity,
-                    formattedQuantity
+                    formattedQuantity,
+                    description // Optional description
             );
 
             accessoryRepository.saveFastenersAccessory(fastenersAccessory);
@@ -195,7 +203,8 @@ public class AccessoryService {
         }
     }
 
-    public FastenersAccessory updateFastenersAccessory(String id, String name, String netPricePerQuantity, String quantity) {
+    // Update FastenersAccessory with description validation
+    public FastenersAccessory updateFastenersAccessory(String id, String name, String netPricePerQuantity, String quantity, String description) {
         try {
             LOGGER.info("Attempting to update FastenersAccessory with id: {}", id);
             FastenersAccessory oldAccessory = accessoryRepository.getFastenersAccessory(id);
@@ -205,12 +214,15 @@ public class AccessoryService {
                     ? new BigDecimal(netPricePerQuantity) : oldAccessory.netPricePerQuantity();
             double updatedQuantity = Validator.isQuantityValid(quantity)
                     ? Double.parseDouble(quantity) : oldAccessory.quantity();
+            String updatedDescription = ValidationUtils.isDescriptionValid(description)
+                    ? description : oldAccessory.description();
 
             FastenersAccessory updatedAccessory = new FastenersAccessory(
                     id,
                     updatedName,
                     updatedNetPricePerQuantity,
-                    updatedQuantity
+                    updatedQuantity,
+                    updatedDescription // Validated description
             );
 
             accessoryRepository.saveFastenersAccessory(updatedAccessory);

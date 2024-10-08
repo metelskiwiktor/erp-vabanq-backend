@@ -10,6 +10,7 @@ public record PackagingAccessory(
     String packagingSize,
     String dimensions, //__x__x__
     BigDecimal netPricePerQuantity,
-    double quantity
+    double quantity,
+    String description
 ) implements Identifiable {
 }

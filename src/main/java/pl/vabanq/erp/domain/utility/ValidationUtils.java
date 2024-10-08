@@ -36,6 +36,6 @@ public class ValidationUtils {
     }
 
     public static boolean isDescriptionValid(String description) {
-        return description != null && description.trim().length() >= 10;
+        return description != null && !description.trim().isEmpty();
     }
 }

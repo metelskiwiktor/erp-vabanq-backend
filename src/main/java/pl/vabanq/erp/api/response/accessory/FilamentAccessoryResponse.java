@@ -1,4 +1,4 @@
-package pl.vabanq.erp.api.response;
+package pl.vabanq.erp.api.response.accessory;
 
 import java.math.BigDecimal;
 

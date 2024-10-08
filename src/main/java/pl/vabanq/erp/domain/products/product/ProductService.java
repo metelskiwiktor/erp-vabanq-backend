@@ -20,7 +20,9 @@ import java.util.List;
 
 public class ProductService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
-    private static final List<String> VALID_PREVIEW_FORMATS = List.of(".jpg", ".jpeg", ".png");
+    private static final List<String> VALID_PREVIEW_FORMATS = List.of(
+            ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".bmp", ".tiff", ".tif"
+    );
     private final ProductRepository productRepository;
     private final AccessoryRepository accessoryRepository;
     private final ChangeTrackingService changeTrackingService;
@@ -35,7 +37,7 @@ public class ProductService {
                                Integer printMinutes, String price, String allegroTax, String description) {
         try {
             LOGGER.info("Attempting to save Product with name: {}", name);
-            Validator.validateProduct(name, ean, accessoriesQ, printHours, printMinutes, price, allegroTax, description);
+            Validator.validateProduct(name, ean, accessoriesQ, printHours, printMinutes, price, allegroTax);
 
             BigDecimal formattedPrice = new BigDecimal(price);
             BigDecimal formattedAllegroTax = new BigDecimal(allegroTax);
@@ -186,7 +188,7 @@ public class ProductService {
         }
     }
 
-    public Product deleteFileById(String productId, String fileId) {
+    public void deleteFileById(String productId, String fileId) {
         try {
             LOGGER.info("Attempting to delete file with id: {} from Product with id: {}", fileId, productId);
             Product oldProduct = productRepository.getProduct(productId);
@@ -211,7 +213,6 @@ public class ProductService {
             productRepository.saveProduct(updatedProduct);
             changeTrackingService.logUpdate(oldProduct, updatedProduct);
             LOGGER.info("Successfully deleted file from Product: {}", updatedProduct);
-            return updatedProduct;
         } catch (Exception e) {
             LOGGER.error("Error deleting file from Product with id: {}", productId, e);
             throw e;
@@ -225,8 +226,7 @@ public class ProductService {
     private static class Validator {
 
         static void validateProduct(String name, String ean, List<Pair<Double, String>> accessoriesQ,
-                                    Integer printHours, Integer printMinutes, String price, String allegroTax,
-                                    String description) {
+                                    Integer printHours, Integer printMinutes, String price, String allegroTax) {
             ValidationUtils.validateName(name);
             if (!isEanValid(ean)) {
                 throw new DomainException(ErrorCode.INVALID_VALUE, "ean", ean);
@@ -239,9 +239,6 @@ public class ProductService {
             }
             ValidationUtils.validatePrice("price", price);
             ValidationUtils.validatePrice("allegroTax", allegroTax);
-            if (!ValidationUtils.isDescriptionValid(description)) {
-                throw new DomainException(ErrorCode.INVALID_VALUE, "description", description);
-            }
         }
 
         static void validatePreviewFile(byte[] data, String filename) {
@@ -287,10 +284,6 @@ public class ProductService {
 
         static boolean isPrintTimeValid(Integer hours, Integer minutes) {
             return hours != null && minutes != null && hours >= 0 && minutes >= 0 && minutes < 60;
-        }
-
-        static boolean isFileValid(byte[] data, String filename) {
-            return data != null && data.length > 0 && filename != null && !filename.trim().isEmpty();
         }
     }
 }

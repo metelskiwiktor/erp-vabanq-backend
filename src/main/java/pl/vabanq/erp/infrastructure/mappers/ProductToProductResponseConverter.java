@@ -3,7 +3,11 @@ package pl.vabanq.erp.infrastructure.mappers;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import pl.vabanq.erp.api.response.*;
+import pl.vabanq.erp.api.response.accessory.FastenersAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.FilamentAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.PackagingAccessoryResponse;
+import pl.vabanq.erp.api.response.product.ProductAccessoriesResponse;
+import pl.vabanq.erp.api.response.product.ProductResponse;
 import pl.vabanq.erp.domain.products.accessory.model.FastenersAccessory;
 import pl.vabanq.erp.domain.products.accessory.model.FilamentAccessory;
 import pl.vabanq.erp.domain.products.accessory.model.PackagingAccessory;
@@ -61,7 +65,8 @@ public class ProductToProductResponseConverter implements Converter<Product, Pro
                 accessory.id(),
                 accessory.name(),
                 accessory.netPricePerQuantity(),
-                accessory.quantity()
+                accessory.quantity(),
+                accessory.description()
         );
     }
 
@@ -89,7 +94,8 @@ public class ProductToProductResponseConverter implements Converter<Product, Pro
                 accessory.packagingSize(),
                 accessory.dimensions(),
                 accessory.netPricePerQuantity(),
-                accessory.quantity()
+                accessory.quantity(),
+                accessory.description()
         );
     }
 }

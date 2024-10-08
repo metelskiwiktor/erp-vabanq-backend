@@ -2,7 +2,7 @@ package pl.vabanq.erp.infrastructure.mappers;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
-import pl.vabanq.erp.api.response.FilamentAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.FilamentAccessoryResponse;
 import pl.vabanq.erp.domain.products.accessory.model.FilamentAccessory;
 
 @Component

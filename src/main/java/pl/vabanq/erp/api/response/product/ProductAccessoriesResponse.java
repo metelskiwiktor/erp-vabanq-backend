@@ -1,6 +1,9 @@
-package pl.vabanq.erp.api.response;
+package pl.vabanq.erp.api.response.product;
 
 import org.springframework.data.util.Pair;
+import pl.vabanq.erp.api.response.accessory.FastenersAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.FilamentAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.PackagingAccessoryResponse;
 
 import java.util.List;
 

@@ -5,12 +5,13 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.vabanq.erp.api.request.FastenersAccessoryRequest;
-import pl.vabanq.erp.api.request.FilamentAccessoryRequest;
-import pl.vabanq.erp.api.request.PackagingAccessoryRequest;
-import pl.vabanq.erp.api.response.FastenersAccessoryResponse;
-import pl.vabanq.erp.api.response.FilamentAccessoryResponse;
-import pl.vabanq.erp.api.response.PackagingAccessoryResponse;
+import pl.vabanq.erp.api.request.accessory.FastenersAccessoryRequest;
+import pl.vabanq.erp.api.request.accessory.FilamentAccessoryRequest;
+import pl.vabanq.erp.api.request.accessory.PackagingAccessoryRequest;
+import pl.vabanq.erp.api.response.accessory.FastenersAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.FilamentAccessoryResponse;
+import pl.vabanq.erp.api.response.accessory.GroupedAccessoriesResponse;
+import pl.vabanq.erp.api.response.accessory.PackagingAccessoryResponse;
 import pl.vabanq.erp.domain.products.accessory.AccessoryService;
 import pl.vabanq.erp.domain.products.accessory.model.*;
 
@@ -59,7 +60,7 @@ public class AccessoryController {
     public ResponseEntity<PackagingAccessoryResponse> savePackagingAccessory(@RequestBody PackagingAccessoryRequest request) {
         PackagingAccessory savedPackaging = accessoryService.savePackagingAccessory(
                 request.name(), request.packagingSize(), request.dimensions(),
-                request.netPricePerQuantity(), request.quantity()
+                request.netPricePerQuantity(), request.quantity(), request.description()
         );
         PackagingAccessoryResponse response = conversionService.convert(savedPackaging, PackagingAccessoryResponse.class);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -71,7 +72,7 @@ public class AccessoryController {
                                                                                @RequestBody PackagingAccessoryRequest request) {
         PackagingAccessory updatedPackaging = accessoryService.updatePackagingAccessory(
                 id, request.name(), request.packagingSize(), request.dimensions(),
-                request.netPricePerQuantity(), request.quantity()
+                request.netPricePerQuantity(), request.quantity(), request.description()
         );
         PackagingAccessoryResponse response = conversionService.convert(updatedPackaging, PackagingAccessoryResponse.class);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -81,7 +82,7 @@ public class AccessoryController {
     @PostMapping("/fasteners")
     public ResponseEntity<FastenersAccessoryResponse> saveFastenersAccessory(@RequestBody FastenersAccessoryRequest request) {
         FastenersAccessory savedFasteners = accessoryService.saveFastenersAccessory(
-                request.name(), request.netPricePerQuantity(), request.quantity()
+                request.name(), request.netPricePerQuantity(), request.quantity(), request.description()
         );
         FastenersAccessoryResponse response = conversionService.convert(savedFasteners, FastenersAccessoryResponse.class);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -92,7 +93,7 @@ public class AccessoryController {
     public ResponseEntity<FastenersAccessoryResponse> updateFastenersAccessory(@PathVariable String id,
                                                                                @RequestBody FastenersAccessoryRequest request) {
         FastenersAccessory updatedFasteners = accessoryService.updateFastenersAccessory(
-                id, request.name(), request.netPricePerQuantity(), request.quantity()
+                id, request.name(), request.netPricePerQuantity(), request.quantity(), request.description()
         );
         FastenersAccessoryResponse response = conversionService.convert(updatedFasteners, FastenersAccessoryResponse.class);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -116,5 +117,26 @@ public class AccessoryController {
                 .map(packaging -> conversionService.convert(packaging, PackagingAccessoryResponse.class))
                 .toList();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<GroupedAccessoriesResponse> getAllAccessories() {
+        List<PackagingAccessory> packages = accessoryService.getAllPackagingAccessories();
+        List<FilamentAccessory> filaments = accessoryService.getAllFilaments();
+        List<FastenersAccessory> fasteners = accessoryService.getAllFasteners();
+
+        List<PackagingAccessoryResponse> packagesResponse = packages.stream()
+                .map(packaging -> conversionService.convert(packaging, PackagingAccessoryResponse.class))
+                .toList();
+
+        List<FilamentAccessoryResponse> filamentsResponse = filaments.stream()
+                .map(filament -> conversionService.convert(filament, FilamentAccessoryResponse.class))
+                .toList();
+
+        List<FastenersAccessoryResponse> fastenersResponse = fasteners.stream()
+                .map(fastener -> conversionService.convert(fastener, FastenersAccessoryResponse.class))
+                .toList();
+
+        return new ResponseEntity<>(new GroupedAccessoriesResponse(fastenersResponse, filamentsResponse, packagesResponse), HttpStatus.OK);
     }
 }

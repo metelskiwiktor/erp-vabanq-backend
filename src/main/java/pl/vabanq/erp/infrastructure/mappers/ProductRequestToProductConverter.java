@@ -3,7 +3,7 @@ package pl.vabanq.erp.infrastructure.mappers;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import pl.vabanq.erp.api.request.ProductRequest;
+import pl.vabanq.erp.api.request.product.ProductRequest;
 import pl.vabanq.erp.domain.products.product.model.AccessoryQuantity;
 import pl.vabanq.erp.domain.products.product.model.PrintTime;
 import pl.vabanq.erp.domain.products.product.model.Product;

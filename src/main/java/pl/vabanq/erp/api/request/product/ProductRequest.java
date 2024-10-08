@@ -1,4 +1,4 @@
-package pl.vabanq.erp.api.request;
+package pl.vabanq.erp.api.request.product;
 
 import org.springframework.data.util.Pair;
 
